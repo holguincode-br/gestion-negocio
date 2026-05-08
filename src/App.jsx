@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DataProvider } from './context/DataContext';
+import { DataProvider, useData } from './context/DataContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Productos from './pages/Productos';
@@ -23,15 +23,33 @@ const pages = {
   configuracion: Configuracion,
 };
 
-function App() {
+function AppContent() {
   const [activePage, setActivePage] = useState('dashboard');
+  const { loading } = useData();
   const Page = pages[activePage] || Dashboard;
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-slate-500">Cargando datos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Layout activePage={activePage} onNavigate={setActivePage}>
+      <Page />
+    </Layout>
+  );
+}
+
+function App() {
   return (
     <DataProvider>
-      <Layout activePage={activePage} onNavigate={setActivePage}>
-        <Page />
-      </Layout>
+      <AppContent />
     </DataProvider>
   );
 }
